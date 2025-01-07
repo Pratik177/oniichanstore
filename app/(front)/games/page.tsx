@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import ProductItem from "@/components/ProductItem";
 import { convertDocToObj } from "@/lib/utils";
 import productsService from "@/services/ProductServices";

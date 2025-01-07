@@ -8,6 +8,7 @@ export const round2 = (num: number) =>
   Math.round((num + Number.EPSILON) * 100) / 100
 
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function convertDocToObj(doc: any) {
   doc._id = doc._id.toString()
   return doc
