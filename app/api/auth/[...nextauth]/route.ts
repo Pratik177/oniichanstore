@@ -1,15 +1,18 @@
-import NextAuth from 'next-auth';
-import CredentialsProvider from 'next-auth/providers/credentials'; 
-import bcrypt from 'bcryptjs';
-import UserModel from '@/models/User';
-import { connect } from '@/lib/db';
+// app/api/auth/[...nextauth]/route.ts
 
-export const config = {
+import NextAuth from "next-auth";
+import CredentialsProvider from "next-auth/providers/credentials";
+import bcrypt from "bcryptjs";
+import UserModel from "@/models/User";
+import { connect } from "@/lib/db";
+
+// NextAuth Configuration
+export const authOptions = {
   providers: [
     CredentialsProvider({
       credentials: {
-        email: { type: 'email' },
-        password: { type: 'password' },
+        email: { type: "email" },
+        password: { type: "password" },
       },
       async authorize(credentials) {
         await connect();
@@ -31,22 +34,21 @@ export const config = {
   callbacks: {
     async jwt({ user, token }) {
       if (user) {
-        // Make sure user._id is part of the token
+        // Ensure user._id is part of the token
         token.user = { _id: user._id, email: user.email, name: user.name, isAdmin: user.isAdmin };
       }
       return token;
     },
     async session({ session, token }) {
-      // Make sure _id is added to session user
+      // Ensure _id is added to session user
       if (token?.user) {
-        session.user = { ...session.user, _id: token.user._id }; 
+        session.user = { ...session.user, _id: token.user._id };
       }
       return session;
     },
-    
-    
   },
 };
 
-const handler = NextAuth(config);
+// Use `NextAuth` and export handler
+const handler = NextAuth(authOptions);
 export { handler as GET, handler as POST };
