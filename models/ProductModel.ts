@@ -1,5 +1,21 @@
 import mongoose from 'mongoose'
 
+
+const itemSchema = new mongoose.Schema({
+  id: {
+    type: Number,
+    required: true,
+  },
+  label: {
+    type: String,
+    required: true,
+  },
+  price: {
+    type: Number,
+    required: true,
+  },
+});
+
 const productSchema = new mongoose.Schema(
   {
     name: { type: String, required: true },
@@ -14,6 +30,7 @@ const productSchema = new mongoose.Schema(
     description: { type: String, required: true },
     isFeatured: { type: Boolean, default: false },
     banner: String,
+    items:[itemSchema]
   },
   {
     timestamps: true,
@@ -27,7 +44,7 @@ export default ProductModel
 
 
 export type Product = {
-    _id?: string
+    _id: string
     name: string
     slug: string
     image: string
@@ -39,6 +56,7 @@ export type Product = {
     rating: number
     numReviews: number
     countInStock: number
+    items?: { id: number; price: number; label: string }[];
     colors?: []
     sizes?: []
   }

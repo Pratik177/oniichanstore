@@ -28,6 +28,17 @@ const data = {
           description: 'A popular shirt',
           isFeatured: true,
           banner: '/images/banner1.png',
+          items: [
+            { id: 1, label: 'Item 1', price: 10 },
+            { id: 2, label: 'Item 2', price: 20 },
+            { id: 3, label: 'Item 3', price: 30 },
+            { id: 4, label: 'Item 4', price: 40 },
+            { id: 5, label: 'Item 5', price: 140 },
+            { id: 6, label: 'Item 6', price: 240 },
+            { id: 7, label: 'Item 7', price: 340 },
+            { id: 8, label: 'Item 8', price: 440 },
+            { id: 9, label: 'Item 9', price: 550 },
+          ]
         },
         {
             name: 'Free Fire 2',

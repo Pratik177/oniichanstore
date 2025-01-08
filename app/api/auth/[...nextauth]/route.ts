@@ -1,72 +1,52 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-import NextAuth from "next-auth";
-import CredentialsProvider from "next-auth/providers/credentials";
-import bcrypt from "bcrypt";
-import { connect } from "@/lib/db";
-import { signJwtToken } from "@/lib/jwt";
-import User from "@/models/User";
+import NextAuth from 'next-auth';
+import CredentialsProvider from 'next-auth/providers/credentials'; 
+import bcrypt from 'bcryptjs';
+import UserModel from '@/models/User';
+import { connect } from '@/lib/db';
 
-export const authOptions = {
+export const config = {
   providers: [
     CredentialsProvider({
-      type: "credentials",
-      credentials: {},
+      credentials: {
+        email: { type: 'email' },
+        password: { type: 'password' },
+      },
       async authorize(credentials) {
         await connect();
+        if (!credentials) return null;
 
         const { email, password } = credentials;
+        const user = await UserModel.findOne({ email });
 
-        try {
-          const user = await User.findOne({ email });
-
-          if (!user) {
-            throw new Error("Invalid input");
+        if (user) {
+          const isMatch = await bcrypt.compare(password, user.password);
+          if (isMatch) {
+            return { _id: user._id, email: user.email, name: user.name, isAdmin: user.isAdmin };
           }
-
-          const passwordMatch = await bcrypt.compare(password, user.password);
-
-          if (!passwordMatch) {
-            throw new Error("Passwords do not match");
-          } else {
-            const { password, ...currentUser } = user._doc;
-            const accessToken = signJwtToken(currentUser, { expiresIn: "7d" });
-
-            return {
-              ...currentUser,
-              accessToken,
-            };
-          }
-        } catch (error) {
-          console.log(error);
         }
+        return null;
       },
     }),
   ],
-  pages: {
-    signIn: "/login",
-  },
-  secret: process.env.NEXTAUTH_SECRET,
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ user, token }) {
       if (user) {
-        token.accessToken = user.accessToken;
-        token._id = user._id;
+        // Make sure user._id is part of the token
+        token.user = { _id: user._id, email: user.email, name: user.name, isAdmin: user.isAdmin };
       }
-
       return token;
     },
-
     async session({ session, token }) {
-      if (token) {
-        session.user._id = token._id;
-        session.user.accessToken = token.accessToken;
+      // Make sure _id is added to session user
+      if (token?.user) {
+        session.user = { ...session.user, _id: token.user._id }; 
       }
-
       return session;
     },
+    
+    
   },
 };
 
-const handler = NextAuth(authOptions);
-
+const handler = NextAuth(config);
 export { handler as GET, handler as POST };
